@@ -1,4 +1,4 @@
-SubdivisionQuadEdgeMeshFilter2
+SubdivisionQuadEdgeMeshFilter4
 ==============================
 
 Refactoring of  http://www.insight-journal.org/browse/publication/831

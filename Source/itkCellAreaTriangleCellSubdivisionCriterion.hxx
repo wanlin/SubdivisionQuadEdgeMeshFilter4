@@ -23,9 +23,9 @@
 
 namespace itk
 {
-template< typename TMesh >
+template< typename TTriangleCellSubdivisionFilter >
 void
-CellAreaTriangleCellSubdivisionCriterion< TMesh >::
+CellAreaTriangleCellSubdivisionCriterion< TTriangleCellSubdivisionFilter >::
 Compute( MeshType * mesh, CellIdContainer & cellIds )
 {
   cellIds.clear();
