@@ -20,6 +20,7 @@
 #define __itkConditionalTriangleCellSubdivisionQuadEdgeMeshFilter_h
 
 #include "itkQuadEdgeMeshToQuadEdgeMeshFilter.h"
+#include "itkQuadEdgeMeshTriangleCellSubdivisionCriterion.h"
 
 namespace itk
 {
@@ -29,7 +30,7 @@ namespace itk
  * \brief FIXME
  * \ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TInputMesh, typename TCellSubdivisionFilter, typename TCriterion >
+template< typename TInputMesh, typename TCellSubdivisionFilter >
 class ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter:
   public QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, typename TCellSubdivisionFilter::OutputMeshType >
 {
@@ -52,12 +53,12 @@ public:
   typedef typename CellSubdivisionFilterType::OutputCellIdentifierListType           OutputCellIdentifierListType;
   typedef typename CellSubdivisionFilterType::OutputCellIdentifierListConstIterator  OutputCellIdentifierListConstIterator;
 
-  typedef TCriterion                                                                 CriterionType;
+  typedef QuadEdgeMeshTriangleCellSubdivisionCriterion<CellSubdivisionFilterType>    CriterionType;
   typedef typename CriterionType::Pointer                                            CriterionPointer;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter);
-  itkNewMacro(Self);
+  itkTypeMacro( ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter );
+  itkNewMacro( Self );
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   itkConceptMacro( SameTypeCheck,
@@ -68,7 +69,7 @@ public:
     ( Concept::SameType< typename CellSubdivisionFilterType::OutputCellIdentifierListType, typename CriterionType::CellIdContainer > ) );
 #endif
 
-  itkSetObjectMacro(SubdivisionCriterion, CriterionType);
+  void SetSubdivisionCriterion( CriterionType * criterion );
 
 protected:
   ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter();
@@ -77,15 +78,15 @@ protected:
 
   virtual void GenerateData();
 
-  void PrintSelf(std::ostream & os, Indent indent) const;
+  void PrintSelf( std::ostream & os, Indent indent ) const;
 
   CellSubdivisionFilterPointer  m_CellSubdivisionFilter;
   OutputCellIdentifierListType  m_CellsToBeSubdivided;
   CriterionPointer              m_SubdivisionCriterion;
 
 private:
-  ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter(const Self &); // purposely not implemented
-  void operator=(const Self &);                // purposely not implemented
+  ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );                // purposely not implemented
 };
 } // end namespace itk
 

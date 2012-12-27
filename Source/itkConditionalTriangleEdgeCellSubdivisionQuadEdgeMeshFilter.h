@@ -20,6 +20,7 @@
 #define __itkConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter_h
 
 #include "itkQuadEdgeMeshToQuadEdgeMeshFilter.h"
+#include "itkQuadEdgeMeshTriangleEdgeCellSubdivisionCriterion.h"
 
 namespace itk
 {
@@ -29,7 +30,7 @@ namespace itk
  * \brief FIXME
  * \ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TInputMesh, typename TEdgeCellSubdivisionFilter, typename TCriterion >
+template< typename TInputMesh, typename TEdgeCellSubdivisionFilter >
 class ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter:
   public QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, typename TEdgeCellSubdivisionFilter::OutputMeshType >
 {
@@ -52,8 +53,8 @@ public:
   typedef typename EdgeCellSubdivisionFilterType::InputEdgeListType                  InputEdgeListType;
   typedef typename EdgeCellSubdivisionFilterType::InputEdgeListConstIterator         InputEdgeListConstIterator;
 
-  typedef TCriterion                                                                 CriterionType;
-  typedef typename CriterionType::Pointer                                            CriterionPointer;
+  typedef QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< EdgeCellSubdivisionFilterType >    CriterionType;
+  typedef typename CriterionType::Pointer                                                      CriterionPointer;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro( ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter );
@@ -66,7 +67,7 @@ public:
     ( Concept::SameType< typename EdgeCellSubdivisionFilterType::OutputMeshType, typename CriterionType::MeshType > ) );
 #endif
 
-  itkSetObjectMacro(SubdivisionCriterion, CriterionType);
+  void SetSubdivisionCriterion( CriterionType * criterion );
 
 protected:
   ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter();

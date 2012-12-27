@@ -23,16 +23,25 @@
 
 namespace itk
 {
-template< typename TInputMesh, typename TEdgeCellSubdivisionFilter, typename TCriterion >
-ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter, TCriterion >
+template< typename TInputMesh, typename TEdgeCellSubdivisionFilter >
+ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter >
 ::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter()
 {
   m_EdgeCellSubdivisionFilter = EdgeCellSubdivisionFilterType::New();
 }
 
-template< typename TInputMesh, typename TEdgeCellSubdivisionFilter, typename TCriterion >
+template< typename TInputMesh, typename TEdgeCellSubdivisionFilter >
 void
-ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter, TCriterion >
+ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter >
+::SetSubdivisionCriterion( CriterionType * criterion )
+{
+  m_SubdivisionCriterion = criterion;
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TEdgeCellSubdivisionFilter >
+void
+ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter >
 ::GenerateData()
 {
   this->CopyInputMeshToOutputMeshGeometry();
@@ -50,9 +59,9 @@ ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellS
     }
 }
 
-template< typename TInputMesh, typename TEdgeCellSubdivisionFilter, typename TCriterion >
+template< typename TInputMesh, typename TEdgeCellSubdivisionFilter >
 void
-ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter, TCriterion >
+ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TEdgeCellSubdivisionFilter >
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );

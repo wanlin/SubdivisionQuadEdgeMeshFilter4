@@ -28,14 +28,14 @@ namespace itk
  *\brief
  *\ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TMesh >
-class EdgeLengthTriangleEdgeCellSubdivisionCriterion : public QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< TMesh >
+template< typename TTriangleEdgeCellSubdivisionFilter >
+class EdgeLengthTriangleEdgeCellSubdivisionCriterion : public QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< TTriangleEdgeCellSubdivisionFilter >
 {
 public:
-  typedef EdgeLengthTriangleEdgeCellSubdivisionCriterion              Self;
-  typedef QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< TMesh >   Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  typedef EdgeLengthTriangleEdgeCellSubdivisionCriterion                                           Self;
+  typedef QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< TTriangleEdgeCellSubdivisionFilter >   Superclass;
+  typedef SmartPointer< Self >                                Pointer;
+  typedef SmartPointer< const Self >                          ConstPointer;
 
   typedef typename Superclass::MeshType                       MeshType;
   typedef typename Superclass::MeshPointer                    MeshPointer;
@@ -60,7 +60,7 @@ public:
   itkTypeMacro( EdgeLengthTriangleEdgeCellSubdivisionCriterion, QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion );
   itkNewMacro( Self );
 
-  void Compute(MeshType * mesh, EdgeListType & edgeList);
+  virtual void Compute( MeshType * mesh, EdgeListType & edgeList );
 
   itkGetConstMacro(MaximumLength, CoordRepType);
   itkSetMacro(MaximumLength, CoordRepType);

@@ -20,7 +20,7 @@
 #define __itkQuadEdgeMeshTriangleEdgeCellSubdivisionCriterion_h
 
 #include "itkObject.h"
-#include <list>
+
 namespace itk
 {
 /**
@@ -28,39 +28,38 @@ namespace itk
  *\brief
  *\ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TMesh >
+template< typename TTriangleEdgeCellSubdivisionFilter >
 class ITK_EXPORT QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion : public Object
 {
 public:
-  typedef QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion  Self;
-  typedef Object                                            Superclass;
-  typedef SmartPointer< Self >                              Pointer;
-  typedef SmartPointer< const Self >                        ConstPointer;
+  typedef QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion                  Self;
+  typedef Object                                                            Superclass;
+  typedef SmartPointer< Self >                                              Pointer;
+  typedef SmartPointer< const Self >                                        ConstPointer;
 
-  typedef TMesh                                             MeshType;
-  typedef typename MeshType::Pointer                        MeshPointer;
-  typedef typename MeshType::ConstPointer                   MeshConstPointer;
-  typedef typename MeshType::PointsContainerPointer         PointsContainerPointer;
-  typedef typename MeshType::PointsContainerConstIterator   PointsContainerConstIterator;
-  typedef typename MeshType::PointsContainerIterator        PointsContainerIterator;
-  typedef typename MeshType::CellsContainer                 CellsContainer;
-  typedef typename MeshType::CellsContainerPointer          CellsContainerPointer;
-  typedef typename MeshType::CellsContainerIterator         CellsContainerIterator;
-  typedef typename MeshType::CellsContainerConstIterator    CellsContainerConstIterator;
-  typedef typename MeshType::PointType                      PointType;
-  typedef typename MeshType::CoordRepType                   CoordRepType;
-  typedef typename MeshType::PointIdentifier                PointIdentifier;
-  typedef typename MeshType::CellIdentifier                 CellIdentifier;
-  typedef typename MeshType::CellType                       CellType;
-  typedef typename MeshType::QEType                         QEType;
-  typedef typename MeshType::PointIdIterator                PointIdIterator;
-
-  typedef std::list< QEType * >                             EdgeListType;
+  typedef typename TTriangleEdgeCellSubdivisionFilter::InputMeshType        MeshType;
+  typedef typename MeshType::Pointer                                        MeshPointer;
+  typedef typename MeshType::ConstPointer                                   MeshConstPointer;
+  typedef typename MeshType::PointsContainerPointer                         PointsContainerPointer;
+  typedef typename MeshType::PointsContainerConstIterator                   PointsContainerConstIterator;
+  typedef typename MeshType::PointsContainerIterator                        PointsContainerIterator;
+  typedef typename MeshType::CellsContainer                                 CellsContainer;
+  typedef typename MeshType::CellsContainerPointer                          CellsContainerPointer;
+  typedef typename MeshType::CellsContainerIterator                         CellsContainerIterator;
+  typedef typename MeshType::CellsContainerConstIterator                    CellsContainerConstIterator;
+  typedef typename MeshType::PointType                                      PointType;
+  typedef typename MeshType::CoordRepType                                   CoordRepType;
+  typedef typename MeshType::PointIdentifier                                PointIdentifier;
+  typedef typename MeshType::CellIdentifier                                 CellIdentifier;
+  typedef typename MeshType::CellType                                       CellType;
+  typedef typename MeshType::QEType                                         QEType;
+  typedef typename MeshType::PointIdIterator                                PointIdIterator;
+  typedef typename TTriangleEdgeCellSubdivisionFilter::InputEdgeListType    EdgeListType;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro( QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion, Object );
 
-  void Compute( MeshType * mesh, EdgeListType & edgeList );
+  virtual void Compute( MeshType * mesh, EdgeListType & edgeList ) = 0;
 
 protected:
   QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion(){}

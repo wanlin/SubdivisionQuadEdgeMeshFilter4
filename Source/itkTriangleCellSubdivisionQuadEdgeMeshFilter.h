@@ -34,7 +34,7 @@ class TriangleCellSubdivisionQuadEdgeMeshFilter:
   public SubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
 public:
-  typedef TriangleCellSubdivisionQuadEdgeMeshFilter                            Self;
+  typedef TriangleCellSubdivisionQuadEdgeMeshFilter                    Self;
   typedef SubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >     Superclass;
   typedef SmartPointer< Self >                                         Pointer;
   typedef SmartPointer< const Self >                                   ConstPointer;

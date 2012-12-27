@@ -33,35 +33,20 @@
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"
 
-int main(int argc, char *argv[])
+template< typename TTriangleEdgeCellSubdivisionFilter >
+int TriangleEdgeCellSubdivisionFilterTest( int argc, char *argv[] )
 {
-  if ( argc < 3 )
-    {
-    std::cerr << "Missing Parameters " << std::endl;
-    std::cerr << "Usage: " << argv[0];
-    std::cerr << " inputMeshFile  outputMeshFile subdivisionType edgeLengthThreshold" << std::endl;
-    std::cerr << " 0 : ModifiedButterfly " << std::endl;
-    std::cerr << " 1 : Linear " << std::endl;
-    std::cerr << " 2 : Loop " << std::endl;
-    return EXIT_FAILURE;
-    }
 
-  typedef float MeshPixelType;
-  const unsigned int Dimension = 3;
-
-  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > InputMeshType;
-  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > OutputMeshType;
-
-  typedef itk::TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >                       CellSubdivisionFilterType;
-  typedef itk::ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >      ButterflySubdivisionFilterType;
-  typedef itk::LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >      LinearSubdivisionFilterType;
-  typedef itk::LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >        LoopSubdivisionFilterType;
-  typedef CellSubdivisionFilterType::InputEdgeListType                                                   InputEdgeListType;
+  typedef TTriangleEdgeCellSubdivisionFilter                                   TriangleEdgeCellSubdivisionFilterType;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::Pointer              TriangleEdgeCellSubdivisionFilterPointer;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::InputMeshType        InputMeshType;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::OutputMeshType       OutputMeshType;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::InputEdgeListType    InputEdgeListType;
 
   typedef itk::MeshFileReader< InputMeshType >  ReaderType;
   typedef itk::MeshFileWriter< OutputMeshType > WriterType;
 
-  ReaderType::Pointer reader = ReaderType::New();
+  typename ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(argv[1]);
   try
     {
@@ -74,33 +59,7 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
     }
 
-  CellSubdivisionFilterType::Pointer subdivision;
-
-  if ( argc >= 4 )
-    {
-    int type = std::atoi(argv[3]);
-
-    switch ( type )
-      {
-      case 0:
-        subdivision = ButterflySubdivisionFilterType::New().GetPointer();
-        break;
-      case 1:
-        subdivision = LinearSubdivisionFilterType::New().GetPointer();
-        break;
-      case 2:
-        subdivision = LoopSubdivisionFilterType::New().GetPointer();
-        break;
-      default:
-        std::cerr << "Invalid subdivision type : " << type << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-  else
-    {
-    std::cerr << "You must have subdivision type " << std::endl;
-    return EXIT_FAILURE;
-    }
+  TriangleEdgeCellSubdivisionFilterPointer subdivision = TriangleEdgeCellSubdivisionFilterType::New();
 
   double edgeLengthThreshold = 1.0;
   if ( argc >= 5 )
@@ -109,23 +68,16 @@ int main(int argc, char *argv[])
     }
 
   InputEdgeListType edgesToBeSubdivided;
-  InputMeshType::PointType pointArray[2];
-  InputMeshType::ConstPointer input = reader->GetOutput();
-  InputMeshType::CellsContainer::ConstPointer edges = input->GetEdgeCells();
-  for(InputMeshType::CellsContainer::ConstIterator eter = edges->Begin(); eter != edges->End(); ++eter)
+  typename InputMeshType::PointType pointArray[2];
+  typename InputMeshType::ConstPointer input = reader->GetOutput();
+  typename InputMeshType::CellsContainer::ConstPointer edges = input->GetEdgeCells();
+  for(typename InputMeshType::CellsContainer::ConstIterator eter = edges->Begin(); eter != edges->End(); ++eter)
     {
-    InputMeshType::EdgeCellType * edge = dynamic_cast<InputMeshType::EdgeCellType *>(eter.Value());
+    typename InputMeshType::EdgeCellType * edge = dynamic_cast<typename InputMeshType::EdgeCellType *>( eter.Value() );
     if( edge )
       {
-      /*
-      std::cout<<"num = "<<edge->GetNumberOfPoints()<<std::endl;
-      std::cout<<"ss = "<<edge->PointIdsBegin()[0]<<std::endl;
-      std::cout<<"tt = "<<edge->PointIdsBegin()[1]<<std::endl;
-      std::cout<<"source = "<<edge->GetOrigin()<<std::endl;
-      std::cout<<"target = "<<edge->GetDestination()<<std::endl;
-      */
-      input->GetPoint(edge->PointIdsBegin()[0], &pointArray[0]);
-      input->GetPoint(edge->PointIdsBegin()[1], &pointArray[1]);
+      input->GetPoint( edge->PointIdsBegin()[0], &pointArray[0] );
+      input->GetPoint( edge->PointIdsBegin()[1], &pointArray[1] );
       if(static_cast<double>(pointArray[1].SquaredEuclideanDistanceTo(pointArray[0])) > edgeLengthThreshold)
         {
         std::cout<<"to be subdivided edge id = "<<eter->Index()<<std::endl;
@@ -161,7 +113,7 @@ int main(int argc, char *argv[])
     typedef itk::HarmonicMatrixCoefficients< OutputMeshType >                  HarmonicMatrixCoefficientsType;
 
     OnesMatrixCoefficientsType             coef;
-    OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
+    typename OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
     meshSmoothingFilter->SetInput( subdivision->GetOutput() );
     meshSmoothingFilter->SetCoefficientsMethod(&coef);
     meshSmoothingFilter->SetDelaunayConforming(1);
@@ -171,7 +123,7 @@ int main(int argc, char *argv[])
     subdivision->GetOutput()->Graft( meshSmoothingFilter->GetOutput() );
     }
 
-  WriterType::Pointer writer = WriterType::New();
+  typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(argv[2]);
   writer->SetInput( subdivision->GetOutput() );
 
@@ -183,6 +135,56 @@ int main(int argc, char *argv[])
     {
     std::cerr << "Exception thrown while writting the output file " << std::endl;
     std::cerr << exp << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+
+int main(int argc, char *argv[])
+{
+  if ( argc < 3 )
+    {
+    std::cerr << "Missing Parameters " << std::endl;
+    std::cerr << "Usage: " << argv[0];
+    std::cerr << " inputMeshFile  outputMeshFile subdivisionType edgeLengthThreshold" << std::endl;
+    std::cerr << " 0 : ModifiedButterfly " << std::endl;
+    std::cerr << " 1 : Linear " << std::endl;
+    std::cerr << " 2 : Loop " << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  typedef float MeshPixelType;
+  const unsigned int Dimension = 3;
+
+  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > InputMeshType;
+  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > OutputMeshType;
+
+  typedef itk::ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >      ButterflySubdivisionFilterType;
+  typedef itk::LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >      LinearSubdivisionFilterType;
+  typedef itk::LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, OutputMeshType >        LoopSubdivisionFilterType;
+
+
+  if ( argc >= 4 )
+    {
+    int type = std::atoi(argv[3]);
+
+    switch ( type )
+      {
+      case 0:
+        return TriangleEdgeCellSubdivisionFilterTest< ButterflySubdivisionFilterType >( argc, argv );
+      case 1:
+        return TriangleEdgeCellSubdivisionFilterTest< LinearSubdivisionFilterType >( argc, argv );
+      case 2:
+        return TriangleEdgeCellSubdivisionFilterTest< LoopSubdivisionFilterType >( argc, argv );
+      default:
+        std::cerr << "Invalid subdivision type : " << type << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+  else
+    {
+    std::cerr << "You must have subdivision type " << std::endl;
     return EXIT_FAILURE;
     }
 

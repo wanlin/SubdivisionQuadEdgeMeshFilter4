@@ -34,39 +34,23 @@
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"
 
-int main(int argc, char *argv[])
+template< typename TTriangleEdgeCellSubdivisionFilter >
+int ConditionalTriangleEdgeCellSubdivisionFilterTest( int argc, char *argv[] )
 {
-  if ( argc < 3 )
-    {
-    std::cerr << "Missing Parameters " << std::endl;
-    std::cerr << "Usage: " << argv[0];
-    std::cerr << " inputMeshFile  outputMeshFile subdivisionType area" << std::endl;
-    std::cerr << " 0 : ModifiedButterfly " << std::endl;
-    std::cerr << " 1 : Linear " << std::endl;
-    std::cerr << " 2 : Loop " << std::endl;
-    return EXIT_FAILURE;
-    }
 
-  typedef float MeshPixelType;
-  const unsigned int Dimension = 3;
+  typedef TTriangleEdgeCellSubdivisionFilter                                TriangleEdgeCellSubdivisionFilterType;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::Pointer           TriangleEdgeCellSubdivisionFilterPointer;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::InputMeshType     InputMeshType;
+  typedef typename TriangleEdgeCellSubdivisionFilterType::OutputMeshType    OutputMeshType;
 
-  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > InputMeshType;
-  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > OutputMeshType;
-
-  typedef itk::ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >   ModifiedButterflySubdivisionFilterType;
-  typedef itk::LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >      LinearSubdivisionFilterType;
-  typedef itk::LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >        LoopSubdivisionFilterType;
-
-  typedef itk::EdgeLengthTriangleEdgeCellSubdivisionCriterion< OutputMeshType > CriterionType;
-  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, ModifiedButterflySubdivisionFilterType, CriterionType > ConditionalModifiedButterflySubdivisionFilterType;
-  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LinearSubdivisionFilterType, CriterionType > ConditionalLinearSubdivisionFilterType;
-  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LoopSubdivisionFilterType, CriterionType > ConditionalLoopSubdivisionFilterType;
+  typedef itk::EdgeLengthTriangleEdgeCellSubdivisionCriterion< typename TriangleEdgeCellSubdivisionFilterType::EdgeCellSubdivisionFilterType > CriterionType;
+  typedef typename CriterionType::Pointer                                                              CriterionPointer;
 
   typedef itk::MeshFileReader< InputMeshType >  ReaderType;
   typedef itk::MeshFileWriter< OutputMeshType > WriterType;
 
-  ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName(argv[1]);
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( argv[1] );
   try
     {
     reader->Update();
@@ -78,55 +62,19 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
     }
 
-  ConditionalModifiedButterflySubdivisionFilterType::Pointer butterFlySubdivision = ConditionalModifiedButterflySubdivisionFilterType::New();
-  ConditionalLinearSubdivisionFilterType::Pointer linearSubdivision = ConditionalLinearSubdivisionFilterType::New();
-  ConditionalLoopSubdivisionFilterType::Pointer loopSubdivision = ConditionalLoopSubdivisionFilterType::New();
-
-  CriterionType::Pointer criterion = CriterionType::New();
+  TriangleEdgeCellSubdivisionFilterPointer subdivision = TriangleEdgeCellSubdivisionFilterType::New();
+  CriterionPointer criterion = CriterionType::New();
   criterion->SetMaximumLength(1.0);
   if ( argc >= 5 )
     {
-    float area = std::atof(argv[4]);
-    criterion->SetMaximumLength(area);
+    float length = std::atof( argv[4] );
+    criterion->SetMaximumLength( length );
     }
 
-  butterFlySubdivision->SetSubdivisionCriterion( criterion );
-  linearSubdivision->SetSubdivisionCriterion( criterion );
-  loopSubdivision->SetSubdivisionCriterion( criterion );
-
-  butterFlySubdivision->SetInput( reader->GetOutput() );
-  linearSubdivision->SetInput( reader->GetOutput() );
-  loopSubdivision->SetInput( reader->GetOutput() );
-
-  OutputMeshType::Pointer output;
-  if ( argc >= 4 )
-    {
-    int type = std::atoi(argv[3]);
-
-    switch ( type )
-      {
-      case 0:
-        butterFlySubdivision->Update();
-        output = butterFlySubdivision->GetOutput();
-        break;
-      case 1:
-        linearSubdivision->Update();
-        output = linearSubdivision->GetOutput();
-        break;
-      case 2:
-        loopSubdivision->Update();
-        output = loopSubdivision->GetOutput();
-        break;
-      default:
-        std::cerr << "Invalid subdivision type : " << type << std::endl;
-        return EXIT_FAILURE;
-      }
-    }
-  else
-    {
-    std::cerr << "You must have subdivision type " << std::endl;
-    return EXIT_FAILURE;
-    }
+  subdivision->SetSubdivisionCriterion( criterion.GetPointer() );
+  subdivision->SetInput( reader->GetOutput() );
+  subdivision->Update();
+  typename OutputMeshType::Pointer output = subdivision->GetOutput();
 
   bool smoothing = false;
   if ( argc >= 6 )
@@ -150,7 +98,7 @@ int main(int argc, char *argv[])
     typedef itk::HarmonicMatrixCoefficients< OutputMeshType >                  HarmonicMatrixCoefficientsType;
 
     OnesMatrixCoefficientsType             coef;
-    OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
+    typename OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
     meshSmoothingFilter->SetInput( output );
     meshSmoothingFilter->SetCoefficientsMethod(&coef);
     meshSmoothingFilter->SetDelaunayConforming(1);
@@ -160,7 +108,7 @@ int main(int argc, char *argv[])
     output->Graft( meshSmoothingFilter->GetOutput() );
     }
 
-  WriterType::Pointer writer = WriterType::New();
+  typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(argv[2]);
   writer->SetInput( output );
 
@@ -172,6 +120,59 @@ int main(int argc, char *argv[])
     {
     std::cerr << "Exception thrown while writting the output file " << std::endl;
     std::cerr << exp << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+
+int main(int argc, char *argv[])
+{
+  if ( argc < 3 )
+    {
+    std::cerr << "Missing Parameters " << std::endl;
+    std::cerr << "Usage: " << argv[0];
+    std::cerr << " inputMeshFile  outputMeshFile subdivisionType area" << std::endl;
+    std::cerr << " 0 : ModifiedButterfly " << std::endl;
+    std::cerr << " 1 : Linear " << std::endl;
+    std::cerr << " 2 : Loop " << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  typedef float MeshPixelType;
+  const unsigned int Dimension = 3;
+
+  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > InputMeshType;
+  typedef itk::QuadEdgeMesh< MeshPixelType, Dimension > OutputMeshType;
+
+  typedef itk::ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >   ModifiedButterflySubdivisionFilterType;
+  typedef itk::LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >      LinearSubdivisionFilterType;
+  typedef itk::LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >        LoopSubdivisionFilterType;
+
+  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, ModifiedButterflySubdivisionFilterType > ConditionalModifiedButterflySubdivisionFilterType;
+  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LinearSubdivisionFilterType > ConditionalLinearSubdivisionFilterType;
+  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LoopSubdivisionFilterType > ConditionalLoopSubdivisionFilterType;
+
+  if ( argc >= 4 )
+    {
+    int type = std::atoi(argv[3]);
+
+    switch ( type )
+      {
+      case 0:
+        return ConditionalTriangleEdgeCellSubdivisionFilterTest< ConditionalModifiedButterflySubdivisionFilterType >( argc, argv );
+      case 1:
+        return ConditionalTriangleEdgeCellSubdivisionFilterTest< ConditionalLinearSubdivisionFilterType >( argc, argv );
+      case 2:
+        return ConditionalTriangleEdgeCellSubdivisionFilterTest< ConditionalLoopSubdivisionFilterType >( argc, argv );
+      default:
+        std::cerr << "Invalid subdivision type : " << type << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+  else
+    {
+    std::cerr << "You must have subdivision type " << std::endl;
     return EXIT_FAILURE;
     }
 

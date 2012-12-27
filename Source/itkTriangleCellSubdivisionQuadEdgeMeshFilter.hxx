@@ -210,7 +210,7 @@ void
 TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::SplitTriangleFromThreeEdges( OutputMeshType * output,
   const OutputPointIdentifier * trianglePointIds,
-  const OutputPointIdentifier * edgePointIds)
+  const OutputPointIdentifier * edgePointIds )
 {
   // this face was not supposed to be subdivided but all neighbors are
   if( this->m_Uniform )

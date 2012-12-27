@@ -34,6 +34,98 @@
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"
 
+template< typename TTriangleCellSubdivisionFilter >
+int ConditionalTriangleCellSubdivisionFilterTest( int argc, char *argv[] )
+{
+
+  typedef TTriangleCellSubdivisionFilter                                TriangleCellSubdivisionFilterType;
+  typedef typename TTriangleCellSubdivisionFilter::Pointer              TriangleCellSubdivisionFilterPointer;
+  typedef typename TriangleCellSubdivisionFilterType::InputMeshType     InputMeshType;
+  typedef typename TriangleCellSubdivisionFilterType::OutputMeshType    OutputMeshType;
+
+  typedef itk::CellAreaTriangleCellSubdivisionCriterion< typename TriangleCellSubdivisionFilterType::CellSubdivisionFilterType > CriterionType;
+  typedef typename CriterionType::Pointer                                                    CriterionPointer;
+  typedef itk::MeshFileReader< InputMeshType >  ReaderType;
+  typedef itk::MeshFileWriter< OutputMeshType > WriterType;
+
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName( argv[1] );
+  try
+    {
+    reader->Update();
+    }
+  catch ( itk::ExceptionObject & exp )
+    {
+    std::cerr << "Exception thrown while reading the input file " << std::endl;
+    std::cerr << exp << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  TriangleCellSubdivisionFilterPointer subdivision = TriangleCellSubdivisionFilterType::New();
+
+  CriterionPointer criterion = CriterionType::New();
+  criterion->SetMaximumArea(1.0);
+  if ( argc >= 5 )
+    {
+    float area = std::atof(argv[4]);
+    criterion->SetMaximumArea(area);
+    }
+
+  subdivision->SetSubdivisionCriterion( criterion.GetPointer() );
+  subdivision->SetInput( reader->GetOutput() );
+  subdivision->Update();
+  typename OutputMeshType::Pointer output = subdivision->GetOutput();
+
+  bool smoothing = false;
+  if ( argc >= 6 )
+  {
+  smoothing = true;
+  }
+
+  if ( smoothing )
+    {
+#if ( ITK_VERSION_MAJOR < 4 )
+    typedef itk::QuadEdgeMeshSmoothing< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
+#else
+    typedef itk::SmoothingQuadEdgeMeshFilter< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
+#endif
+    typedef itk::MatrixCoefficients< OutputMeshType >                          MatrixCoefficientsType;
+    typedef itk::OnesMatrixCoefficients< OutputMeshType >                      OnesMatrixCoefficientsType;
+    typedef itk::InverseEuclideanDistanceMatrixCoefficients< OutputMeshType >  InverseEuclideanDistanceMatrixCoefficientsType;
+    typedef itk::ConformalMatrixCoefficients< OutputMeshType >                 ConformalMatrixCoefficientsType;
+    typedef itk::AuthalicMatrixCoefficients< OutputMeshType >                  AuthalicMatrixCoefficientsType;
+    typedef itk::IntrinsicMatrixCoefficients< OutputMeshType >                 IntrinsicMatrixCoefficientsType;
+    typedef itk::HarmonicMatrixCoefficients< OutputMeshType >                  HarmonicMatrixCoefficientsType;
+
+    OnesMatrixCoefficientsType             coef;
+    typename OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
+    meshSmoothingFilter->SetInput( output );
+    meshSmoothingFilter->SetCoefficientsMethod(&coef);
+    meshSmoothingFilter->SetDelaunayConforming(1);
+    meshSmoothingFilter->SetNumberOfIterations(1);
+    meshSmoothingFilter->Update();
+
+    output->Graft( meshSmoothingFilter->GetOutput() );
+    }
+
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName(argv[2]);
+  writer->SetInput( output );
+
+  try
+    {
+    writer->Update();
+    }
+  catch ( itk::ExceptionObject & exp )
+    {
+    std::cerr << "Exception thrown while writting the output file " << std::endl;
+    std::cerr << exp << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  return EXIT_SUCCESS;
+}
+
 int main(int argc, char *argv[])
 {
   if ( argc < 3 )
@@ -59,52 +151,11 @@ int main(int argc, char *argv[])
   typedef itk::LoopTriangleCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >        LoopSubdivisionFilterType;
   typedef itk::SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType > SquareThreeSubdivisionFilterType;
 
-  typedef itk::CellAreaTriangleCellSubdivisionCriterion< OutputMeshType > CriterionType;
-  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, ModifiedButterflySubdivisionFilterType, CriterionType > ConditionalModifiedButterflySubdivisionFilterType;
-  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LinearSubdivisionFilterType, CriterionType > ConditionalLinearSubdivisionFilterType;
-  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LoopSubdivisionFilterType, CriterionType > ConditionalLoopSubdivisionFilterType;
-  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, SquareThreeSubdivisionFilterType, CriterionType > ConditionalSquareThreeSubdivisionFilterType;
+  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, ModifiedButterflySubdivisionFilterType > ConditionalModifiedButterflySubdivisionFilterType;
+  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LinearSubdivisionFilterType > ConditionalLinearSubdivisionFilterType;
+  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LoopSubdivisionFilterType > ConditionalLoopSubdivisionFilterType;
+  typedef itk::ConditionalTriangleCellSubdivisionQuadEdgeMeshFilter< InputMeshType, SquareThreeSubdivisionFilterType > ConditionalSquareThreeSubdivisionFilterType;
 
-  typedef itk::MeshFileReader< InputMeshType >  ReaderType;
-  typedef itk::MeshFileWriter< OutputMeshType > WriterType;
-
-  ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName(argv[1]);
-  try
-    {
-    reader->Update();
-    }
-  catch ( itk::ExceptionObject & exp )
-    {
-    std::cerr << "Exception thrown while reading the input file " << std::endl;
-    std::cerr << exp << std::endl;
-    return EXIT_FAILURE;
-    }
-
-  ConditionalModifiedButterflySubdivisionFilterType::Pointer butterFlySubdivision = ConditionalModifiedButterflySubdivisionFilterType::New();
-  ConditionalLinearSubdivisionFilterType::Pointer linearSubdivision = ConditionalLinearSubdivisionFilterType::New();
-  ConditionalLoopSubdivisionFilterType::Pointer loopSubdivision = ConditionalLoopSubdivisionFilterType::New();
-  ConditionalSquareThreeSubdivisionFilterType::Pointer squareThreeSubdivision = ConditionalSquareThreeSubdivisionFilterType::New();
-
-  CriterionType::Pointer criterion = CriterionType::New();
-  criterion->SetMaximumArea(1.0);
-  if ( argc >= 5 )
-    {
-    float area = std::atof(argv[4]);
-    criterion->SetMaximumArea(area);
-    }
-
-  butterFlySubdivision->SetSubdivisionCriterion( criterion );
-  linearSubdivision->SetSubdivisionCriterion( criterion );
-  loopSubdivision->SetSubdivisionCriterion( criterion );
-  squareThreeSubdivision->SetSubdivisionCriterion( criterion );
-
-  butterFlySubdivision->SetInput( reader->GetOutput() );
-  linearSubdivision->SetInput( reader->GetOutput() );
-  loopSubdivision->SetInput( reader->GetOutput() );
-  squareThreeSubdivision->SetInput( reader->GetOutput() );
-
-  OutputMeshType::Pointer output;
   if ( argc >= 4 )
     {
     int type = std::atoi(argv[3]);
@@ -112,21 +163,13 @@ int main(int argc, char *argv[])
     switch ( type )
       {
       case 0:
-        butterFlySubdivision->Update();
-        output = butterFlySubdivision->GetOutput();
-        break;
+        return ConditionalTriangleCellSubdivisionFilterTest< ConditionalModifiedButterflySubdivisionFilterType >( argc, argv );
       case 1:
-        linearSubdivision->Update();
-        output = linearSubdivision->GetOutput();
-        break;
+        return ConditionalTriangleCellSubdivisionFilterTest< ConditionalLinearSubdivisionFilterType >( argc, argv );
       case 2:
-        loopSubdivision->Update();
-        output = loopSubdivision->GetOutput();
-        break;
+        return ConditionalTriangleCellSubdivisionFilterTest< ConditionalLoopSubdivisionFilterType >( argc, argv );
       case 3:
-        squareThreeSubdivision->Update();
-        output = squareThreeSubdivision->GetOutput();
-        break;
+        return ConditionalTriangleCellSubdivisionFilterTest< ConditionalSquareThreeSubdivisionFilterType >( argc, argv );
       default:
         std::cerr << "Invalid subdivision type : " << type << std::endl;
         return EXIT_FAILURE;
@@ -135,53 +178,6 @@ int main(int argc, char *argv[])
   else
     {
     std::cerr << "You must have subdivision type " << std::endl;
-    return EXIT_FAILURE;
-    }
-
-  bool smoothing = false;
-  if ( argc >= 6 )
-  {
-  smoothing = true;
-  }
-
-  if ( smoothing )
-    {
-#if ( ITK_VERSION_MAJOR < 4 )
-    typedef itk::QuadEdgeMeshSmoothing< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
-#else
-    typedef itk::SmoothingQuadEdgeMeshFilter< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
-#endif
-    typedef itk::MatrixCoefficients< OutputMeshType >                          MatrixCoefficientsType;
-    typedef itk::OnesMatrixCoefficients< OutputMeshType >                      OnesMatrixCoefficientsType;
-    typedef itk::InverseEuclideanDistanceMatrixCoefficients< OutputMeshType >  InverseEuclideanDistanceMatrixCoefficientsType;
-    typedef itk::ConformalMatrixCoefficients< OutputMeshType >                 ConformalMatrixCoefficientsType;
-    typedef itk::AuthalicMatrixCoefficients< OutputMeshType >                  AuthalicMatrixCoefficientsType;
-    typedef itk::IntrinsicMatrixCoefficients< OutputMeshType >                 IntrinsicMatrixCoefficientsType;
-    typedef itk::HarmonicMatrixCoefficients< OutputMeshType >                  HarmonicMatrixCoefficientsType;
-
-    OnesMatrixCoefficientsType             coef;
-    OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
-    meshSmoothingFilter->SetInput( output );
-    meshSmoothingFilter->SetCoefficientsMethod(&coef);
-    meshSmoothingFilter->SetDelaunayConforming(1);
-    meshSmoothingFilter->SetNumberOfIterations(1);
-    meshSmoothingFilter->Update();
-
-    output->Graft( meshSmoothingFilter->GetOutput() );
-    }
-
-  WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName(argv[2]);
-  writer->SetInput( output );
-
-  try
-    {
-    writer->Update();
-    }
-  catch ( itk::ExceptionObject & exp )
-    {
-    std::cerr << "Exception thrown while writting the output file " << std::endl;
-    std::cerr << exp << std::endl;
     return EXIT_FAILURE;
     }
 
