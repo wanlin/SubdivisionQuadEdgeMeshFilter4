@@ -32,9 +32,18 @@ TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 template< typename TInputMesh, typename TOutputMesh >
 void
 TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::SetEdgesToBeSubdivided( const InputEdgeListType & EdgesList )
+::SetCellsToBeSubdivided( const SubdivisionCellContainer & EdgesList )
 {
   this->m_EdgesToBeSubdivided = EdgesList;
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::AddSubdividedEdge( InputQEType * edge )
+{
+  this->m_EdgesToBeSubdivided.push_back( edge );
   this->Modified();
 }
 
@@ -65,19 +74,22 @@ TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       typename InputMeshType::EdgeCellType * edge = dynamic_cast< typename InputMeshType::EdgeCellType * >( eter.Value() );
       if( edge )
         {
-        this->AddNewPoints( edge->GetQEGeom() );
+        this->AddNewEdgePoints( edge->GetQEGeom() );
         }
       ++eter;
       }
     }
   else
     {
-    InputEdgeListConstIterator it  = this->m_EdgesToBeSubdivided.begin();
-    InputEdgeListConstIterator end = this->m_EdgesToBeSubdivided.end();
+    SubdivisionCellContainerConstIterator it  = this->m_EdgesToBeSubdivided.begin();
+    SubdivisionCellContainerConstIterator end = this->m_EdgesToBeSubdivided.end();
 
     while( it != end )
       {
-      this->AddNewPoints( *it );
+      if( *it )
+        {
+        this->AddNewEdgePoints( *it );
+        }
       ++it;
       }
     }

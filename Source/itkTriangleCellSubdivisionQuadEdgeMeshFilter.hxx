@@ -33,9 +33,18 @@ TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 template< typename TInputMesh, typename TOutputMesh >
 void
 TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::SetCellsToBeSubdivided( const OutputCellIdentifierListType & cellIdList )
+::SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList )
 {
   this->m_CellsToBeSubdivided = cellIdList;
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::AddSubdividedCellId( OutputCellIdentifier cellId )
+{
+  this->m_CellsToBeSubdivided.push_back( cellId );
   this->Modified();
 }
 
@@ -57,20 +66,20 @@ TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     InputCellsContainerConstIterator cellIt = cells->Begin();
     while ( cellIt != cells->End() )
       {
-      this->AddNewPoints( cellIt->Value() );
+      this->AddNewCellPoints( cellIt->Value() );
       ++cellIt;
       }
     }
   else
     {
-    OutputCellIdentifierListConstIterator it  = this->m_CellsToBeSubdivided.begin();
-    OutputCellIdentifierListConstIterator end = this->m_CellsToBeSubdivided.end();
+    SubdivisionCellContainerConstIterator it  = this->m_CellsToBeSubdivided.begin();
+    SubdivisionCellContainerConstIterator end = this->m_CellsToBeSubdivided.end();
     while( it != end )
       {
       InputCellType* cell = cells->GetElement( static_cast<InputCellIdentifier>( *it ) );
       if( cell )
         {
-        this->AddNewPoints( cell );
+        this->AddNewCellPoints( cell );
         }
       ++it;
       }
@@ -222,10 +231,17 @@ TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     }
   else
     {
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] )->GetLeft() );
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] )->GetLeft() );
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] )->GetLeft() );
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] )->GetLeft() );
+    OutputQEType * newTriangleEdge = output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+    newTriangleEdge = output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+    newTriangleEdge = output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+    newTriangleEdge = output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
     }
 }
 

@@ -84,7 +84,7 @@ protected:
   LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
   virtual ~LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputQEType * edge );
+  virtual void AddNewEdgePoints( InputQEType * edge );
 
   virtual void CopyInputMeshToOutputMeshPoints();
 

@@ -76,21 +76,21 @@ public:
   typedef typename Superclass::OutputMeshTraits                        OutputMeshTraits;
   typedef typename Superclass::OutputPointIdIterator                   OutputPointIdIterator;
 
-  typedef std::list< OutputCellIdentifier >                            OutputCellIdentifierListType;
-  typedef typename OutputCellIdentifierListType::const_iterator        OutputCellIdentifierListConstIterator;
+  typedef std::list< OutputCellIdentifier >                            SubdivisionCellContainer;
+  typedef typename SubdivisionCellContainer::const_iterator            SubdivisionCellContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro( TriangleCellSubdivisionQuadEdgeMeshFilter, SubdivisionQuadEdgeMeshFilter );
-  itkGetConstReferenceMacro( CellsToBeSubdivided, OutputCellIdentifierListType );
+  itkGetConstReferenceMacro( CellsToBeSubdivided, SubdivisionCellContainer );
 
-  void SetCellsToBeSubdivided( const OutputCellIdentifierListType & cellIdList );
-  void AddSubdividedCellId( OutputCellIdentifier cellId ){ m_CellsToBeSubdivided.push_back( cellId ); }
+  void SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList );
+  void AddSubdividedCellId( OutputCellIdentifier cellId );
 
 protected:
   TriangleCellSubdivisionQuadEdgeMeshFilter();
   virtual ~TriangleCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputCellType *cell ) = 0;
+  virtual void AddNewCellPoints( InputCellType *cell ) = 0;
   virtual void GenerateOutputPoints( );
   virtual void GenerateOutputCells( );
 
@@ -100,8 +100,8 @@ protected:
 
   void PrintSelf(std::ostream & os, Indent indent) const;
 
-  OutputCellIdentifierListType        m_CellsToBeSubdivided;
-  bool                                m_Uniform;
+  SubdivisionCellContainer        m_CellsToBeSubdivided;
+  bool                            m_Uniform;
 
 private:
   TriangleCellSubdivisionQuadEdgeMeshFilter( const Self & ); // purposely not implemented

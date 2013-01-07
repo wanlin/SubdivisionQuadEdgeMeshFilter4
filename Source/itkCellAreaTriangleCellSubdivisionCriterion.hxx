@@ -25,8 +25,8 @@ namespace itk
 {
 template< typename TTriangleCellSubdivisionFilter >
 void
-CellAreaTriangleCellSubdivisionCriterion< TTriangleCellSubdivisionFilter >::
-Compute( MeshType * mesh, CellIdContainer & cellIds )
+CellAreaTriangleCellSubdivisionCriterion< TTriangleCellSubdivisionFilter >
+::Compute( MeshType * mesh, SubdivisionCellContainer & cellIds )
 {
   cellIds.clear();
   const CellsContainer * cells = mesh->GetCells();
@@ -58,7 +58,7 @@ Compute( MeshType * mesh, CellIdContainer & cellIds )
     CoordRepType area = TriangleHelper<PointType>::ComputeArea( pointArray[0], pointArray[1], pointArray[2] );
     if( area > m_MaximumArea )
       {
-      cellIds.push_back( static_cast<typename CellIdContainer::value_type>( cter->Index() ) );
+      cellIds.push_back( static_cast<typename SubdivisionCellContainer::value_type>( cter->Index() ) );
       }
 
     ++cter;

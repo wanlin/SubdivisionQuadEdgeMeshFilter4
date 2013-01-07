@@ -26,16 +26,12 @@
 #include "itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter.h"
 #include "itkQuadEdgeMesh.h"
 #include "itkQuadEdgeMeshParamMatrixCoefficients.h"
-#if ( ITK_VERSION_MAJOR < 4 )
-#include "itkQuadEdgeMeshSmoothing.h"
-#else
 #include "itkSmoothingQuadEdgeMeshFilter.h"
-#endif
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"
 
 template< typename TTriangleCellSubdivisionFilter >
-int TriangleCellSubdivisionFilterTest( int argc, char *argv[] )
+int TriangleCellSubdivisionQuadEdgeMeshFilterTest( int argc, char *argv[] )
 {
 
   typedef TTriangleCellSubdivisionFilter                         TriangleCellSubdivisionFilterType;
@@ -76,7 +72,7 @@ int TriangleCellSubdivisionFilterTest( int argc, char *argv[] )
     int type = std::atoi(argv[5]);
     if ( type )
       {
-      typename IterativeTriangleCellSubdivisionFilterType::OutputCellIdentifierListType cellsToBeSubdivided;
+      typename IterativeTriangleCellSubdivisionFilterType::SubdivisionCellContainer cellsToBeSubdivided;
 
       cellsToBeSubdivided.push_back(0);
       cellsToBeSubdivided.push_back(1);
@@ -112,20 +108,10 @@ int TriangleCellSubdivisionFilterTest( int argc, char *argv[] )
 
   if ( smoothing )
     {
-#if ( ITK_VERSION_MAJOR < 4 )
-    typedef itk::QuadEdgeMeshSmoothing< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
-#else
     typedef itk::SmoothingQuadEdgeMeshFilter< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
-#endif
-    typedef itk::MatrixCoefficients< OutputMeshType >                          MatrixCoefficientsType;
     typedef itk::OnesMatrixCoefficients< OutputMeshType >                      OnesMatrixCoefficientsType;
-    typedef itk::InverseEuclideanDistanceMatrixCoefficients< OutputMeshType >  InverseEuclideanDistanceMatrixCoefficientsType;
-    typedef itk::ConformalMatrixCoefficients< OutputMeshType >                 ConformalMatrixCoefficientsType;
-    typedef itk::AuthalicMatrixCoefficients< OutputMeshType >                  AuthalicMatrixCoefficientsType;
-    typedef itk::IntrinsicMatrixCoefficients< OutputMeshType >                 IntrinsicMatrixCoefficientsType;
-    typedef itk::HarmonicMatrixCoefficients< OutputMeshType >                  HarmonicMatrixCoefficientsType;
 
-    OnesMatrixCoefficientsType             coef;
+    OnesMatrixCoefficientsType coef;
     typename OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
     meshSmoothingFilter->SetInput( output );
     meshSmoothingFilter->SetCoefficientsMethod(&coef);
@@ -186,13 +172,13 @@ int main(int argc, char *argv[])
     switch ( type )
       {
       case 0:
-        return TriangleCellSubdivisionFilterTest< ModifiedButterflySubdivisionFilterType >( argc, argv );
+        return TriangleCellSubdivisionQuadEdgeMeshFilterTest< ModifiedButterflySubdivisionFilterType >( argc, argv );
       case 1:
-        return TriangleCellSubdivisionFilterTest< LinearSubdivisionFilterType >( argc, argv );
+        return TriangleCellSubdivisionQuadEdgeMeshFilterTest< LinearSubdivisionFilterType >( argc, argv );
       case 2:
-        return TriangleCellSubdivisionFilterTest< LoopSubdivisionFilterType >( argc, argv );
+        return TriangleCellSubdivisionQuadEdgeMeshFilterTest< LoopSubdivisionFilterType >( argc, argv );
       case 3:
-        return TriangleCellSubdivisionFilterTest< SquareThreeSubdivisionFilterType >( argc, argv );
+        return TriangleCellSubdivisionQuadEdgeMeshFilterTest< SquareThreeSubdivisionFilterType >( argc, argv );
       default:
         std::cerr << "Invalid subdivision type : " << type << std::endl;
         return EXIT_FAILURE;

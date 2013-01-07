@@ -49,8 +49,8 @@ public:
   typedef typename OutputMeshType::Pointer                                           OutputMeshPointer;
 
   typedef typename CellSubdivisionFilterType::OutputCellIdentifier                   OutputCellIdentifier;
-  typedef typename CellSubdivisionFilterType::OutputCellIdentifierListType           OutputCellIdentifierListType;
-  typedef typename CellSubdivisionFilterType::OutputCellIdentifierListConstIterator  OutputCellIdentifierListConstIterator;
+  typedef typename CellSubdivisionFilterType::SubdivisionCellContainer               SubdivisionCellContainer;
+  typedef typename CellSubdivisionFilterType::SubdivisionCellContainerConstIterator  SubdivisionCellContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro( IterativeTriangleCellSubdivisionQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter );
@@ -61,12 +61,12 @@ public:
     ( Concept::SameType< typename CellSubdivisionFilterType::InputMeshType, typename CellSubdivisionFilterType::OutputMeshType > ) );
 #endif
 
-  itkSetMacro(ResolutionLevels, unsigned int);
-  itkGetConstMacro(ResolutionLevels, unsigned int);
-  itkGetConstReferenceMacro( CellsToBeSubdivided, OutputCellIdentifierListType );
+  itkSetMacro( ResolutionLevels, unsigned int );
+  itkGetConstMacro( ResolutionLevels, unsigned int );
+  itkGetConstReferenceMacro( CellsToBeSubdivided, SubdivisionCellContainer );
 
-  void SetCellsToBeSubdivided( const OutputCellIdentifierListType & cellIdList );
-  void AddSubdividedCellId(OutputCellIdentifier cellId){ m_CellsToBeSubdivided.push_back( cellId ); }
+  void SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList );
+  void AddSubdividedCellId( OutputCellIdentifier cellId );
 
 protected:
   IterativeTriangleCellSubdivisionQuadEdgeMeshFilter();
@@ -77,9 +77,9 @@ protected:
 
   void PrintSelf( std::ostream & os, Indent indent ) const;
 
-  CellSubdivisionFilterPointer        m_CellSubdivisionFilter;
-  OutputCellIdentifierListType        m_CellsToBeSubdivided;
-  unsigned int                        m_ResolutionLevels;
+  CellSubdivisionFilterPointer    m_CellSubdivisionFilter;
+  SubdivisionCellContainer        m_CellsToBeSubdivided;
+  unsigned int                    m_ResolutionLevels;
 
 private:
   IterativeTriangleCellSubdivisionQuadEdgeMeshFilter( const Self & ); // purposely not implemented

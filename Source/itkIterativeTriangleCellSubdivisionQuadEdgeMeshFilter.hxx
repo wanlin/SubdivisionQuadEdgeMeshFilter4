@@ -27,16 +27,25 @@ template< typename TInputMesh, typename TCellSubdivisionFilter >
 IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
 ::IterativeTriangleCellSubdivisionQuadEdgeMeshFilter()
 {
-  m_CellSubdivisionFilter = CellSubdivisionFilterType::New();
-  m_ResolutionLevels = 1;
+  this->m_CellSubdivisionFilter = CellSubdivisionFilterType::New();
+  this->m_ResolutionLevels = 1;
 }
 
 template< typename TInputMesh, typename TCellSubdivisionFilter >
 void
 IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
-::SetCellsToBeSubdivided( const OutputCellIdentifierListType & cellIdList )
+::SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList )
 {
-  m_CellSubdivisionFilter->SetCellsToBeSubdivided( cellIdList );
+  this->m_CellSubdivisionFilter->SetCellsToBeSubdivided( cellIdList );
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TCellSubdivisionFilter >
+void
+IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
+::AddSubdividedCellId( OutputCellIdentifier cellId )
+{
+  this->m_CellsToBeSubdivided.push_back( cellId );
   this->Modified();
 }
 

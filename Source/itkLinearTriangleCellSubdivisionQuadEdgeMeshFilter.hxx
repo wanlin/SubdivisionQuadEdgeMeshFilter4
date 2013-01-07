@@ -25,7 +25,7 @@ namespace itk
 template< typename TInputMesh, typename TOutputMesh >
 void
 LinearTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputCellType *cell )
+::AddNewCellPoints( InputCellType *cell )
 {
   if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
     {

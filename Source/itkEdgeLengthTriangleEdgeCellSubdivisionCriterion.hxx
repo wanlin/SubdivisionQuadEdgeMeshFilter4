@@ -25,8 +25,8 @@ namespace itk
 {
 template< typename TMesh >
 void
-EdgeLengthTriangleEdgeCellSubdivisionCriterion< TMesh >::
-Compute(MeshType * mesh, EdgeListType & edgeList)
+EdgeLengthTriangleEdgeCellSubdivisionCriterion< TMesh >
+::Compute(MeshType * mesh, SubdivisionCellContainer & edgeList)
 {
   edgeList.clear();
   typename MeshType::CellsContainer::ConstPointer edges = mesh->GetEdgeCells();
@@ -35,7 +35,6 @@ Compute(MeshType * mesh, EdgeListType & edgeList)
     itkExceptionMacro( "<<Input mesh has no edges" );
     }
 
-  PointType pointArray[2];
   typename MeshType::CellsContainer::ConstIterator eter = edges->Begin();
   while( eter != edges->End() )
     {
@@ -46,14 +45,6 @@ Compute(MeshType * mesh, EdgeListType & edgeList)
         {
         edgeList.push_back( edge->GetQEGeom() );
         }
-      /*
-      mesh->GetPoint( edge->PointIdsBegin()[0], &pointArray[0] );
-      mesh->GetPoint( edge->PointIdsBegin()[1], &pointArray[1] );
-      if( pointArray[1].EuclideanDistanceTo( pointArray[0] ) > m_MaximumLength )
-        {
-        edgeList.push_back( mesh->FindEdge( edge->PointIdsBegin()[0], edge->PointIdsBegin()[1]) );
-        }
-        */
       }
     ++eter;
     }

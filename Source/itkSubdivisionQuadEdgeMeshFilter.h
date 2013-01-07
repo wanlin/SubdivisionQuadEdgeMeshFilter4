@@ -19,9 +19,8 @@
 #ifndef __itkSubdivisionQuadEdgeMeshFilter_h
 #define __itkSubdivisionQuadEdgeMeshFilter_h
 
+#include "itkConceptChecking.h"
 #include "itkQuadEdgeMeshToQuadEdgeMeshFilter.h"
-#include "itkQuadEdgeMeshParamMatrixCoefficients.h"
-#include "itkTriangleHelper.h"
 #include "itkMapContainer.h"
 
 namespace itk

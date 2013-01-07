@@ -19,13 +19,14 @@
 #define __itkModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter_hxx
 
 #include "itkModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
 template< typename TInputMesh, typename TOutputMesh >
 void
 ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputCellType *cell )
+::AddNewCellPoints( InputCellType *cell )
 {
   if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
   {
@@ -66,11 +67,13 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
 
       if ( edge->GetLnext() )
         {
-        input->GetPoint(edge->GetLnext()->GetDestination(), &pointArray[2]);
+        InputPointIdentifier ptId = edge->GetLnext()->GetDestination();
+        input->GetPoint( ptId, &pointArray[2] );
 
         if ( edge->GetLnext()->GetRprev() )
           {
-          input->GetPoint( edge->GetLnext()->GetRprev()->GetDestination(), &pointArray[4] );
+          ptId = edge->GetLnext()->GetRprev()->GetDestination();
+          input->GetPoint( ptId, &pointArray[4] );
           }
         else
           {
@@ -85,10 +88,12 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
 
       if ( edge->GetRprev() )
         {
-        input->GetPoint( edge->GetRprev()->GetDestination(), &pointArray[3] );
+        InputPointIdentifier ptId = edge->GetRprev()->GetDestination();
+        input->GetPoint( ptId, &pointArray[3] );
         if ( edge->GetRprev()->GetLnext() )
           {
-          input->GetPoint( edge->GetRprev()->GetLnext()->GetDestination(), &pointArray[5] );
+          ptId = edge->GetRprev()->GetLnext()->GetDestination();
+          input->GetPoint( ptId, &pointArray[5] );
           }
         else
           {
@@ -103,7 +108,8 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
 
       if ( edge->GetLprev() && edge->GetLprev()->GetRprev() )
         {
-        input->GetPoint( edge->GetLprev()->GetRprev()->GetDestination(), &pointArray[6] );
+        InputPointIdentifier ptId = edge->GetLprev()->GetRprev()->GetDestination();
+        input->GetPoint( ptId, &pointArray[6] );
         }
       else
         {
@@ -112,14 +118,15 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
 
       if ( edge->GetRnext() && edge->GetRnext()->GetLnext() )
         {
-        input->GetPoint( edge->GetRnext()->GetLnext()->GetDestination(), &pointArray[7] );
+        InputPointIdentifier ptId = edge->GetRnext()->GetLnext()->GetDestination();
+        input->GetPoint( ptId, &pointArray[7] );
         }
       else
         {
         pointArray[7].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         }
 
-      for ( unsigned int kk = 0; kk < 3; ++kk )
+      for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
         {
         for ( unsigned int mm = 0; mm < 8; ++mm )
           {

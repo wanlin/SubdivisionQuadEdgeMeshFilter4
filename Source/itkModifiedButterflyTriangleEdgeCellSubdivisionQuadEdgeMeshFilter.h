@@ -84,7 +84,7 @@ protected:
   ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
   virtual ~ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputQEType * edge );
+  virtual void AddNewEdgePoints( InputQEType * edge );
 
 private:
   ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter( const Self & );//purposely not implement

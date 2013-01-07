@@ -73,7 +73,7 @@ public:
   typedef typename Superclass::OutputQEType                         OutputQEType;
   typedef typename Superclass::OutputMeshTraits                     OutputMeshTraits;
   typedef typename Superclass::OutputPointIdIterator                OutputPointIdIterator;
-  typedef typename Superclass::OutputCellIdentifierListConstIterator     OutputCellIdentifierListConstIterator;
+  typedef typename Superclass::SubdivisionCellContainerConstIterator SubdivisionCellContainerConstIterator;
 
   typedef typename Superclass::EdgePointIdentifierContainer              EdgePointIdentifierContainer;
   typedef typename Superclass::EdgePointIdentifierContainerPointer       EdgePointIdentifierContainerPointer;
@@ -90,7 +90,9 @@ protected:
 
   virtual void CopyInputMeshToOutputMeshPoints();
 
-  virtual void AddNewPoints( InputCellType *cell );
+  virtual void AddNewCellPoints( InputCellType *cell );
+
+  InputPointType SmoothingPoint( const InputPointType & ipt, const InputPointsContainer * points );
 
 private:
   LoopTriangleCellSubdivisionQuadEdgeMeshFilter(const Self &);

@@ -25,7 +25,7 @@ namespace itk
 template< typename TInputMesh, typename TOutputMesh >
 void
 SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputCellType *cell )
+::AddNewCellPoints( InputCellType *cell )
 {
   if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
     {
@@ -46,12 +46,18 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   while ( pter != cell->PointIdsEnd() )
     {
     pointIdArray[nn] = *pter;
-    newPoint += input->GetPoints()->ElementAt(*pter).GetVectorFromOrigin();
+    InputPointType cellPoint = input->GetPoints()->ElementAt( *pter );
+    newPoint += cellPoint.GetVectorFromOrigin();
     ++pter;
     ++nn;
     }
 
   typename InputPointType::ValueType den = 1. / static_cast< typename InputPointType::ValueType >( nn );
+
+  if( den < NumericTraits< typename InputPointType::ValueType >::epsilon() )
+    {
+    itkExceptionMacro("Exception caused by unusual large number of points inside a cell");
+    }
 
   for ( unsigned int kk = 0; kk < InputPointType::PointDimension; ++kk )
     {
@@ -92,9 +98,8 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   this->m_CellsToBeSubdivided.clear();
 
   //4. Copy all the cell that does not insert a new point.
-  for ( InputCellsContainerConstIterator cellIt = cells->Begin();
-        cellIt != cells->End();
-        ++cellIt )
+  InputCellsContainerConstIterator cellIt = cells->Begin();
+  while( cellIt != cells->End() )
     {
     InputCellType* cell = cellIt->Value();
 
@@ -144,7 +149,8 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
             }
           else
             {
-            this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( pointIdArray[0][0], pointIdArray[0][1], pointIdArray[1][0] )->GetLeft() );
+            OutputQEType * newTriangleEdge =  output->AddFaceTriangle( pointIdArray[0][0], pointIdArray[0][1], pointIdArray[1][0] );
+            this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
             }
           }
         else
@@ -157,13 +163,17 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
             }
           else
             {
-            this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( pointIdArray[1][0], pointIdArray[1][1],  pointIdArray[0][1] )->GetLeft() );
-            this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( pointIdArray[1][1], pointIdArray[1][0],  pointIdArray[0][0] )->GetLeft() );
+            OutputQEType * newTriangleEdge =  output->AddFaceTriangle( pointIdArray[1][0], pointIdArray[1][1],  pointIdArray[0][1] );
+            this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+            newTriangleEdge = output->AddFaceTriangle( pointIdArray[1][1], pointIdArray[1][0],  pointIdArray[0][0] );
+            this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
             }
           this->m_EdgesPointIdentifier->SetElement( edge->GetSym(), NumericTraits< OutputPointIdentifier >::max() );
           }
         }
       }
+    ++cellIt;
     }
 }
 

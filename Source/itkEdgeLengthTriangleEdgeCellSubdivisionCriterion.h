@@ -19,7 +19,10 @@
 #ifndef __itkEdgeLengthTriangleEdgeCellSubdivisionCriterion_h
 #define __itkEdgeLengthTriangleEdgeCellSubdivisionCriterion_h
 
-#include "itkQuadEdgeMeshTriangleEdgeCellSubdivisionCriterion.h"
+#include "itkQuadEdgeMeshSubdivisionCriterion.h"
+#include "itkObjectFactory.h"
+#include "itkNumericTraits.h"
+
 
 namespace itk
 {
@@ -28,39 +31,39 @@ namespace itk
  *\brief
  *\ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TTriangleEdgeCellSubdivisionFilter >
-class EdgeLengthTriangleEdgeCellSubdivisionCriterion : public QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< TTriangleEdgeCellSubdivisionFilter >
+template< typename TSubdivisionFilter >
+class EdgeLengthTriangleEdgeCellSubdivisionCriterion : public QuadEdgeMeshSubdivisionCriterion< TSubdivisionFilter >
 {
 public:
-  typedef EdgeLengthTriangleEdgeCellSubdivisionCriterion                                           Self;
-  typedef QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion< TTriangleEdgeCellSubdivisionFilter >   Superclass;
-  typedef SmartPointer< Self >                                Pointer;
-  typedef SmartPointer< const Self >                          ConstPointer;
+  typedef EdgeLengthTriangleEdgeCellSubdivisionCriterion            Self;
+  typedef QuadEdgeMeshSubdivisionCriterion< TSubdivisionFilter >    Superclass;
+  typedef SmartPointer< Self >                                      Pointer;
+  typedef SmartPointer< const Self >                                ConstPointer;
 
-  typedef typename Superclass::MeshType                       MeshType;
-  typedef typename Superclass::MeshPointer                    MeshPointer;
-  typedef typename Superclass::MeshConstPointer               MeshConstPointer;
-  typedef typename Superclass::PointsContainerPointer         PointsContainerPointer;
-  typedef typename Superclass::PointsContainerConstIterator   PointsContainerConstIterator;
-  typedef typename Superclass::PointsContainerIterator        PointsContainerIterator;
-  typedef typename Superclass::CellsContainer                 CellsContainer;
-  typedef typename Superclass::CellsContainerPointer          CellsContainerPointer;
-  typedef typename Superclass::CellsContainerIterator         CellsContainerIterator;
-  typedef typename Superclass::CellsContainerConstIterator    CellsContainerConstIterator;
-  typedef typename Superclass::PointType                      PointType;
-  typedef typename Superclass::CoordRepType                   CoordRepType;
-  typedef typename Superclass::PointIdentifier                PointIdentifier;
-  typedef typename Superclass::CellIdentifier                 CellIdentifier;
-  typedef typename Superclass::CellType                       CellType;
-  typedef typename Superclass::QEType                         QEType;
-  typedef typename Superclass::PointIdIterator                PointIdIterator;
-  typedef typename Superclass::EdgeListType                   EdgeListType;
+  typedef typename Superclass::MeshType                             MeshType;
+  typedef typename Superclass::MeshPointer                          MeshPointer;
+  typedef typename Superclass::MeshConstPointer                     MeshConstPointer;
+  typedef typename Superclass::PointsContainerPointer               PointsContainerPointer;
+  typedef typename Superclass::PointsContainerConstIterator         PointsContainerConstIterator;
+  typedef typename Superclass::PointsContainerIterator              PointsContainerIterator;
+  typedef typename Superclass::CellsContainer                       CellsContainer;
+  typedef typename Superclass::CellsContainerPointer                CellsContainerPointer;
+  typedef typename Superclass::CellsContainerIterator               CellsContainerIterator;
+  typedef typename Superclass::CellsContainerConstIterator          CellsContainerConstIterator;
+  typedef typename Superclass::PointType                            PointType;
+  typedef typename Superclass::CoordRepType                         CoordRepType;
+  typedef typename Superclass::PointIdentifier                      PointIdentifier;
+  typedef typename Superclass::CellIdentifier                       CellIdentifier;
+  typedef typename Superclass::CellType                             CellType;
+  typedef typename Superclass::QEType                               QEType;
+  typedef typename Superclass::PointIdIterator                      PointIdIterator;
+  typedef typename Superclass::SubdivisionCellContainer             SubdivisionCellContainer;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro( EdgeLengthTriangleEdgeCellSubdivisionCriterion, QuadEdgeMeshTriangleEdgeCellSubdivisionCriterion );
+  itkTypeMacro( EdgeLengthTriangleEdgeCellSubdivisionCriterion, QuadEdgeMeshSubdivisionCriterion );
   itkNewMacro( Self );
 
-  virtual void Compute( MeshType * mesh, EdgeListType & edgeList );
+  virtual void Compute( MeshType * mesh, SubdivisionCellContainer & edgeList );
 
   itkGetConstMacro(MaximumLength, CoordRepType);
   itkSetMacro(MaximumLength, CoordRepType);

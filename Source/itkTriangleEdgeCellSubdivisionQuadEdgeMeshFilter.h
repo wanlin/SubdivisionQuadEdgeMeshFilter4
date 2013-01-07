@@ -76,27 +76,27 @@ public:
   typedef typename Superclass::OutputMeshTraits                        OutputMeshTraits;
   typedef typename Superclass::OutputPointIdIterator                   OutputPointIdIterator;
 
-  typedef std::list< InputQEType * >                                   InputEdgeListType;
-  typedef typename InputEdgeListType::const_iterator                   InputEdgeListConstIterator;
+  typedef std::list< InputQEType * >                                   SubdivisionCellContainer;
+  typedef typename SubdivisionCellContainer::const_iterator            SubdivisionCellContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro( TriangleEdgeCellSubdivisionQuadEdgeMeshFilter, TriangleCellSubdivisionQuadEdgeMeshFilter );
-  itkGetConstReferenceMacro( EdgesToBeSubdivided, InputEdgeListType );
+  itkGetConstReferenceMacro( EdgesToBeSubdivided, SubdivisionCellContainer );
 
-  void SetEdgesToBeSubdivided( const InputEdgeListType & EdgesList );
-  void AddSubdividedEdge( InputQEType * edge ){ m_EdgesToBeSubdivided.push_back( edge ); this->Modified(); }
+  void SetCellsToBeSubdivided( const SubdivisionCellContainer & EdgesList );
+  void AddSubdividedEdge( InputQEType * edge );
 
 protected:
   TriangleEdgeCellSubdivisionQuadEdgeMeshFilter();
   virtual ~TriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputCellType *cell ){}
-  virtual void AddNewPoints( InputQEType * edge ) = 0;
+  virtual void AddNewCellPoints( InputCellType * itkNotUsed( cell ) ){}
+  virtual void AddNewEdgePoints( InputQEType * edge ) = 0;
   virtual void GenerateOutputPoints( );
 
   void PrintSelf( std::ostream & os, Indent indent ) const;
 
-  InputEdgeListType    m_EdgesToBeSubdivided;
+  SubdivisionCellContainer    m_EdgesToBeSubdivided;
 
 private:
   TriangleEdgeCellSubdivisionQuadEdgeMeshFilter( const Self & ); // purposely not implemented

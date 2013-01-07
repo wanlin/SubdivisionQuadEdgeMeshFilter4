@@ -22,20 +22,15 @@
 #include "itkModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter.h"
 #include "itkLinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter.h"
 #include "itkLoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter.h"
-#include "itkConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkConditionalSubdivisionQuadEdgeMeshFilter.h"
 #include "itkEdgeLengthTriangleEdgeCellSubdivisionCriterion.h"
-
 #include "itkQuadEdgeMeshParamMatrixCoefficients.h"
-#if ( ITK_VERSION_MAJOR < 4 )
-#include "itkQuadEdgeMeshSmoothing.h"
-#else
 #include "itkSmoothingQuadEdgeMeshFilter.h"
-#endif
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"
 
 template< typename TTriangleEdgeCellSubdivisionFilter >
-int ConditionalTriangleEdgeCellSubdivisionFilterTest( int argc, char *argv[] )
+int CriterionTriangleEdgeCellSubdivisionQuadEdgeMeshFilterTest( int argc, char *argv[] )
 {
 
   typedef TTriangleEdgeCellSubdivisionFilter                                TriangleEdgeCellSubdivisionFilterType;
@@ -43,7 +38,7 @@ int ConditionalTriangleEdgeCellSubdivisionFilterTest( int argc, char *argv[] )
   typedef typename TriangleEdgeCellSubdivisionFilterType::InputMeshType     InputMeshType;
   typedef typename TriangleEdgeCellSubdivisionFilterType::OutputMeshType    OutputMeshType;
 
-  typedef itk::EdgeLengthTriangleEdgeCellSubdivisionCriterion< typename TriangleEdgeCellSubdivisionFilterType::EdgeCellSubdivisionFilterType > CriterionType;
+  typedef itk::EdgeLengthTriangleEdgeCellSubdivisionCriterion< typename TriangleEdgeCellSubdivisionFilterType::SubdivisionFilterType > CriterionType;
   typedef typename CriterionType::Pointer                                                              CriterionPointer;
 
   typedef itk::MeshFileReader< InputMeshType >  ReaderType;
@@ -84,20 +79,10 @@ int ConditionalTriangleEdgeCellSubdivisionFilterTest( int argc, char *argv[] )
 
   if ( smoothing )
     {
-#if ( ITK_VERSION_MAJOR < 4 )
-    typedef itk::QuadEdgeMeshSmoothing< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
-#else
     typedef itk::SmoothingQuadEdgeMeshFilter< OutputMeshType, OutputMeshType > OutputMeshSmoothingFilterType;
-#endif
-    typedef itk::MatrixCoefficients< OutputMeshType >                          MatrixCoefficientsType;
     typedef itk::OnesMatrixCoefficients< OutputMeshType >                      OnesMatrixCoefficientsType;
-    typedef itk::InverseEuclideanDistanceMatrixCoefficients< OutputMeshType >  InverseEuclideanDistanceMatrixCoefficientsType;
-    typedef itk::ConformalMatrixCoefficients< OutputMeshType >                 ConformalMatrixCoefficientsType;
-    typedef itk::AuthalicMatrixCoefficients< OutputMeshType >                  AuthalicMatrixCoefficientsType;
-    typedef itk::IntrinsicMatrixCoefficients< OutputMeshType >                 IntrinsicMatrixCoefficientsType;
-    typedef itk::HarmonicMatrixCoefficients< OutputMeshType >                  HarmonicMatrixCoefficientsType;
 
-    OnesMatrixCoefficientsType             coef;
+    OnesMatrixCoefficientsType coef;
     typename OutputMeshSmoothingFilterType::Pointer meshSmoothingFilter = OutputMeshSmoothingFilterType::New();
     meshSmoothingFilter->SetInput( output );
     meshSmoothingFilter->SetCoefficientsMethod(&coef);
@@ -126,7 +111,7 @@ int ConditionalTriangleEdgeCellSubdivisionFilterTest( int argc, char *argv[] )
   return EXIT_SUCCESS;
 }
 
-int main(int argc, char *argv[])
+int main( int argc, char *argv[] )
 {
   if ( argc < 3 )
     {
@@ -149,9 +134,9 @@ int main(int argc, char *argv[])
   typedef itk::LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >      LinearSubdivisionFilterType;
   typedef itk::LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< OutputMeshType, OutputMeshType >        LoopSubdivisionFilterType;
 
-  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, ModifiedButterflySubdivisionFilterType > ConditionalModifiedButterflySubdivisionFilterType;
-  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LinearSubdivisionFilterType > ConditionalLinearSubdivisionFilterType;
-  typedef itk::ConditionalTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< InputMeshType, LoopSubdivisionFilterType > ConditionalLoopSubdivisionFilterType;
+  typedef itk::ConditionalSubdivisionQuadEdgeMeshFilter< InputMeshType, ModifiedButterflySubdivisionFilterType > ConditionalModifiedButterflySubdivisionFilterType;
+  typedef itk::ConditionalSubdivisionQuadEdgeMeshFilter< InputMeshType, LinearSubdivisionFilterType > ConditionalLinearSubdivisionFilterType;
+  typedef itk::ConditionalSubdivisionQuadEdgeMeshFilter< InputMeshType, LoopSubdivisionFilterType > ConditionalLoopSubdivisionFilterType;
 
   if ( argc >= 4 )
     {
@@ -160,11 +145,11 @@ int main(int argc, char *argv[])
     switch ( type )
       {
       case 0:
-        return ConditionalTriangleEdgeCellSubdivisionFilterTest< ConditionalModifiedButterflySubdivisionFilterType >( argc, argv );
+        return CriterionTriangleEdgeCellSubdivisionQuadEdgeMeshFilterTest< ConditionalModifiedButterflySubdivisionFilterType >( argc, argv );
       case 1:
-        return ConditionalTriangleEdgeCellSubdivisionFilterTest< ConditionalLinearSubdivisionFilterType >( argc, argv );
+        return CriterionTriangleEdgeCellSubdivisionQuadEdgeMeshFilterTest< ConditionalLinearSubdivisionFilterType >( argc, argv );
       case 2:
-        return ConditionalTriangleEdgeCellSubdivisionFilterTest< ConditionalLoopSubdivisionFilterType >( argc, argv );
+        return CriterionTriangleEdgeCellSubdivisionQuadEdgeMeshFilterTest< ConditionalLoopSubdivisionFilterType >( argc, argv );
       default:
         std::cerr << "Invalid subdivision type : " << type << std::endl;
         return EXIT_FAILURE;

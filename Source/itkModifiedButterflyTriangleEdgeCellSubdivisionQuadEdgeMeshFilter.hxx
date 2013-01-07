@@ -25,7 +25,7 @@ namespace itk
 template< typename TInputMesh, typename TOutputMesh >
 void
 ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputQEType * edge )
+::AddNewEdgePoints( InputQEType * edge )
 {
   const InputMeshType * input = this->GetInput();
   OutputMeshType * output = this->GetOutput();
@@ -41,11 +41,13 @@ ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOut
 
   if ( edge->GetLnext() )
     {
-    input->GetPoint( edge->GetLnext()->GetDestination(), &pointArray[2] );
+    InputPointIdentifier ptId = edge->GetLnext()->GetDestination();
+    input->GetPoint( ptId, &pointArray[2] );
 
     if ( edge->GetLnext()->GetRprev() )
       {
-      input->GetPoint( edge->GetLnext()->GetRprev()->GetDestination(), &pointArray[4] );
+      ptId = edge->GetLnext()->GetRprev()->GetDestination();
+      input->GetPoint( ptId, &pointArray[4] );
       }
     else
       {
@@ -60,10 +62,12 @@ ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOut
 
   if ( edge->GetRprev() )
     {
-    input->GetPoint( edge->GetRprev()->GetDestination(), &pointArray[3] );
+    InputPointIdentifier ptId = edge->GetRprev()->GetDestination();
+    input->GetPoint( ptId, &pointArray[3] );
     if ( edge->GetRprev()->GetLnext() )
       {
-      input->GetPoint( edge->GetRprev()->GetLnext()->GetDestination(), &pointArray[5] );
+      ptId = edge->GetRprev()->GetLnext()->GetDestination();
+      input->GetPoint( ptId, &pointArray[5] );
       }
     else
       {
@@ -78,7 +82,8 @@ ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOut
 
   if ( edge->GetLprev() && edge->GetLprev()->GetRprev() )
     {
-    input->GetPoint( edge->GetLprev()->GetRprev()->GetDestination(), &pointArray[6] );
+    InputPointIdentifier ptId = edge->GetLprev()->GetRprev()->GetDestination();
+    input->GetPoint( ptId, &pointArray[6] );
     }
   else
     {
@@ -87,14 +92,15 @@ ModifiedButterflyTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOut
 
   if ( edge->GetRnext() && edge->GetRnext()->GetLnext() )
     {
-    input->GetPoint( edge->GetRnext()->GetLnext()->GetDestination(), &pointArray[7] );
+    InputPointIdentifier ptId = edge->GetRnext()->GetLnext()->GetDestination();
+    input->GetPoint( ptId, &pointArray[7] );
     }
   else
     {
     pointArray[7].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
     }
 
-  for ( unsigned int kk = 0; kk < 3; ++kk )
+  for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
     {
     for ( unsigned int mm = 0; mm < 8; ++mm )
       {
