@@ -20,6 +20,7 @@
 #define __itkTriangleEdgeCellSubdivisionQuadEdgeMeshFilter_h
 
 #include "itkTriangleCellSubdivisionQuadEdgeMeshFilter.h"
+//#include <set>
 
 namespace itk
 {
@@ -76,6 +77,7 @@ public:
   typedef typename Superclass::OutputMeshTraits                        OutputMeshTraits;
   typedef typename Superclass::OutputPointIdIterator                   OutputPointIdIterator;
 
+//  typedef std::set< InputQEType * >                                    SubdivisionCellContainer;
   typedef std::list< InputQEType * >                                   SubdivisionCellContainer;
   typedef typename SubdivisionCellContainer::const_iterator            SubdivisionCellContainerConstIterator;
 

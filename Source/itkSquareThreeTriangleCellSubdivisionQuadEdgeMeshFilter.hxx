@@ -67,7 +67,7 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   OutputPointType outPoint;
   outPoint.CastFrom( newPoint );
   OutputPointIdentifier newPointId = output->GetNumberOfPoints();
-  output->SetPoint(newPointId, outPoint);
+  output->SetPoint( newPointId, outPoint );
 
   for ( unsigned int ii = 0; ii < 3; ++ii )
     {
@@ -128,6 +128,7 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
       if ( !this->m_EdgesPointIdentifier->IndexExists( edge ) )
         {
+        //No added new point in this triangle cell
         output->AddFaceTriangle( static_cast< OutputPointIdentifier >( cellPointIdArray[0] ),
           static_cast< OutputPointIdentifier >( cellPointIdArray[1] ),
           static_cast< OutputPointIdentifier >( cellPointIdArray[2] ) );
@@ -135,6 +136,7 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
         }
       else if( this->m_EdgesPointIdentifier->ElementAt( edge ) != NumericTraits< OutputPointIdentifier >::max() )
         {
+        //With a new added point in this triangle cell.
         OutputPointIdentifier pointIdArray[2][2];
         pointIdArray[0][0] = static_cast< OutputPointIdentifier >( edge->GetOrigin() );
         pointIdArray[0][1] = static_cast< OutputPointIdentifier >( edge->GetDestination() );
@@ -142,6 +144,7 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
         if ( edge->IsAtBorder() || !this->m_EdgesPointIdentifier->IndexExists( edge->GetSym() ) )
           {
+          //There is no neighbor triangle cell or no splitting of the neighbor triangle cell.
           //TODO: Shall we put this if outside of for-loop of cell iterator.
           if( this->m_Uniform )
             {
@@ -155,6 +158,7 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
           }
         else
           {
+          //There is neighbor triangle cell was split as well, swapping edges was conducted.
           pointIdArray[1][1] = this->m_EdgesPointIdentifier->ElementAt( edge->GetSym() );
           if( this->m_Uniform )
             {
@@ -172,6 +176,13 @@ SquareThreeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
           this->m_EdgesPointIdentifier->SetElement( edge->GetSym(), NumericTraits< OutputPointIdentifier >::max() );
           }
         }
+      /*
+      else
+        {
+        std::cout<<"edge = "<<edge<<std::endl;
+        itkExceptionMacro( <<"new insert point id "<<this->m_EdgesPointIdentifier->ElementAt( edge )<<" is invalid" );
+        }
+        */
       }
     ++cellIt;
     }

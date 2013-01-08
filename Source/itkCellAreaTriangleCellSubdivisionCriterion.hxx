@@ -32,7 +32,7 @@ CellAreaTriangleCellSubdivisionCriterion< TTriangleCellSubdivisionFilter >
   const CellsContainer * cells = mesh->GetCells();
   if( !cells )
     {
-    itkExceptionMacro( "<<Input mesh has not cells" );
+    itkExceptionMacro( <<"Input mesh has not cells" );
     }
 
   CellsContainerConstIterator cter = cells->Begin();

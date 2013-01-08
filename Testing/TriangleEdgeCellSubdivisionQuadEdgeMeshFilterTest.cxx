@@ -77,6 +77,7 @@ int TriangleEdgeCellSubdivisionQuadEdgeMeshFilterTest( int argc, char *argv[] )
         {
         std::cout<<"to be subdivided edge id = "<<eter->Index()<<std::endl;
         edgesToBeSubdivided.push_back( input->FindEdge( edge->PointIdsBegin()[0], edge->PointIdsBegin()[1]) );
+     //   edgesToBeSubdivided.insert( input->FindEdge( edge->PointIdsBegin()[0], edge->PointIdsBegin()[1]) );
         }
       }
     }

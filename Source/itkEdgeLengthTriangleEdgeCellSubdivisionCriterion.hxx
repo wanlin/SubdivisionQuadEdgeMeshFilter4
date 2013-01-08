@@ -32,7 +32,7 @@ EdgeLengthTriangleEdgeCellSubdivisionCriterion< TMesh >
   typename MeshType::CellsContainer::ConstPointer edges = mesh->GetEdgeCells();
   if( !edges )
     {
-    itkExceptionMacro( "<<Input mesh has no edges" );
+    itkExceptionMacro( <<"Input mesh has no edges" );
     }
 
   typename MeshType::CellsContainer::ConstIterator eter = edges->Begin();
@@ -44,6 +44,7 @@ EdgeLengthTriangleEdgeCellSubdivisionCriterion< TMesh >
       if( mesh->ComputeEdgeLength( edge->GetQEGeom() ) > m_MaximumLength )
         {
         edgeList.push_back( edge->GetQEGeom() );
+     //   edgeList.insert( edge->GetQEGeom() );
         }
       }
     ++eter;

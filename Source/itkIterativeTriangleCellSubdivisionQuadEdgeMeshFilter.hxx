@@ -56,14 +56,15 @@ IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivision
 {
   this->CopyInputMeshToOutputMeshGeometry();
 
-  while ( m_ResolutionLevels != 0 )
+  unsigned int  resolution = this->m_ResolutionLevels;
+  while ( resolution != 0 )
     {
     this->m_CellSubdivisionFilter->SetInput( this->GetOutput() );
     this->m_CellSubdivisionFilter->Update();
     OutputMeshPointer mesh = this->m_CellSubdivisionFilter->GetOutput();
     mesh->DisconnectPipeline();
     this->GraftOutput( mesh );
-    --m_ResolutionLevels;
+    --resolution;
     }
 }
 

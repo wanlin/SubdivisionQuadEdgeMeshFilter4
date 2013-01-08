@@ -43,6 +43,7 @@ void
 TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::AddSubdividedEdge( InputQEType * edge )
 {
+//  this->m_EdgesToBeSubdivided.insert( edge );
   this->m_EdgesToBeSubdivided.push_back( edge );
   this->Modified();
 }
@@ -65,7 +66,7 @@ TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     typename InputCellsContainer::ConstPointer edges = this->GetInput()->GetEdgeCells();
     if( !edges )
       {
-      itkExceptionMacro( "<<Input mesh has no edges" );
+      itkExceptionMacro( <<"Input mesh has no edges" );
       }
 
     typename InputCellsContainer::ConstIterator eter = edges->Begin();
